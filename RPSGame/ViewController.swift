@@ -65,7 +65,6 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
         videoPreview.addGestureRecognizer(gesture)
         setUpCamera()
         
-        //start()
         gameManager.setNew()
         targetLabel.text = gameManager.current.rawValue
         
@@ -79,7 +78,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
 
     @objc func start() {
         gameIsRunning = true
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (timer) in
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
             self.remainingTime -= 1
             if self.remainingTime <= 0 {
                 timer.invalidate()
@@ -100,8 +99,6 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
                 
                 self.present(alert, animated: true, completion: nil)
                 
-                
-                //UserDefaults
                 let defaults = UserDefaults.standard
                 defaults.set(yourScore, forKey: "highscore")
                 
@@ -110,51 +107,39 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
                 
                 self.timerLabel.text = "30s"
                 self.scoreLabel.text = "Score: 0"
-                
-                
             }
         }
         
     }
 
-    
-
-    
-    
     func processClassifications(for request: VNRequest, error: Error?) {
         DispatchQueue.main.async {
             guard let results = request.results else {
                 if let error = error {
                     print("Unable to classify image.\n\(error.localizedDescription)")
-                    //self.targetLabel.text = "Unable to classify image.\n\(error.localizedDescription)"
                 }
                 return
             }
-            // The `results` will always be `VNClassificationObservation`s, as specified by the Core ML model in this project.
-            let classifications = results as! [VNClassificationObservation]
+            
+            guard let classifications = results as? [VNClassificationObservation] else {
+                return
+            }
             
             if classifications.isEmpty {
                 self.targetLabel.text = "Nothing recognized."
             } else {
-                // Display top classifications ranked by confidence in the UI.
-                if let classification = classifications.first, self.gameIsRunning {
-
-                    if self.gameManager.verify(input: classification.identifier) && classification.confidence >= 0.8 {
-                        self.gameManager.setNew()
-                        self.targetLabel.text = "\(self.gameManager.current.rawValue)"
-                        
-                        self.scoreLabel.text = "Score: \(self.gameManager.score)"
-                    }
-                    
-
+                if let classification = classifications.first, self.gameIsRunning,
+                   self.gameManager.verify(input: classification.identifier),
+                   classification.confidence >= 0.8 {
+                    self.gameManager.setNew()
+                    self.targetLabel.text = "\(self.gameManager.current.rawValue)"
+                    self.scoreLabel.text = "Score: \(self.gameManager.score)"
                 }
-                
             }
         }
     }
     
     func updateClassifications(for image: CIImage) {
-
         DispatchQueue.global(qos: .userInitiated).async {
             let handler = VNImageRequestHandler(ciImage: image)
             do {
@@ -169,16 +154,13 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
         videoCapture = VideoCapture()
         videoCapture.delegate = self
         videoCapture.fps = 30
-        videoCapture.setUp { (success) in
+        videoCapture.setUp { success in
             if success {
-                // add preview view on the layer
                 if let previewLayer = self.videoCapture.previewLayer {
                     self.videoPreview.layer.addSublayer(previewLayer)
-                    //resize preview layer
                     self.videoCapture.previewLayer?.frame = self.videoPreview.bounds
                 }
                 
-                // start video preview when setup is done
                 self.videoCapture.start()
             }
         }
@@ -189,7 +171,6 @@ extension ViewController: VideoCaptureDelegate {
     func videoCapture(_ capture: VideoCapture, didCaptureVideoFrame: CVPixelBuffer?, timestamp: CMTime) {
         if let pixelBuffer = didCaptureVideoFrame {
             updateClassifications(for: CIImage(cvPixelBuffer: pixelBuffer))
-            
         }
     }
 }
