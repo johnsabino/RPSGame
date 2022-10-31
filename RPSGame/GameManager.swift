@@ -9,9 +9,9 @@
 import Foundation
 
 enum RPS: String {
-    case rock = "Pedra"
-    case paper = "Papel"
-    case scissor = "Tesoura"
+    case rock = "Rock"
+    case paper = "Paper"
+    case scissor = "Scissor"
     
 }
 class GameManager {
