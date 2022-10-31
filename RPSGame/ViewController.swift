@@ -90,7 +90,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
                     highscore = yourScore
                 }
                 
-                let alert = UIAlertController(title: "Seu Score: \(yourScore)", message: "HighScore: \(highscore)", preferredStyle: .alert)
+                let alert = UIAlertController(title: "Your Score: \(yourScore)", message: "HighScore: \(highscore)", preferredStyle: .alert)
 
                 let restartAction = UIAlertAction(title: "Restart", style: .default) { (_) in
                     self.start()
