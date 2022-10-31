@@ -21,19 +21,14 @@ class GameManager {
     var current: RPS = .paper
     var score: Int = 0
     
-   
-    
     func setNew() {
         let rpsString: [RPS] = [.paper, .scissor, .rock]
-        
         let new = rpsString[Int.random(in: 0...2)]
-        
         if new == current {
             setNew()
-        }else {
+        } else {
             current = new
         }
-
     }
     
     func verify(input: String) -> Bool {
@@ -41,21 +36,20 @@ class GameManager {
         var guess: RPS = .paper
         
         switch input {
-        case "FistHand": //pedra ganha de tesoura
+        case "FistHand":
             guess = .scissor
-        case "FiveHand": //papel ganha de pedra
+        case "FiveHand":
             guess = .rock
-        case "VictoryHand": //tesoura ganha de papel
+        case "VictoryHand":
             guess = .paper
         default:
             break
         }
         
-        let confirm = current == guess ? true : false
-        if confirm {
+        if current == guess {
             score += 1
         }
-        return confirm
+        return current == guess
     }
     
     
